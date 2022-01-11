@@ -61,7 +61,7 @@ class DBOferta:
             #mydb = connection.connect()
             cur = mydb.cursor()                                    
             sql = "insert into comida_restaurante (nombre, id_restaurante) values (%s,%s)"            
-            params = (oferta["nombre"], oferta["id_restaurante"])
+            params = (oferta["platos"], oferta["id_restaurante"])
             cur.execute(sql, params)        
             mydb.commit()            
             
