@@ -2,7 +2,6 @@
 from configuration import *
 from controller import Controller
 from dbconnection import Connection
-from dboperation import DatesDB
 import webscraping_restaurant_guru
 
 # metodo para la conxión a la DB
@@ -35,15 +34,6 @@ def brisasDelMar():
         )
     
 
-
-def test():
-    lista = webscraping_restaurant_guru.scraping_ofertas(
-            RESTAURANT_GURU["WS_PORTAL_LABORAL_URL"], RESTAURANT_GURU["WS_PORTAL_LABORAL_URL"]+"Lima", 1
-        )
-    
-    # print('desde test',lista)
-    
     
 if __name__ == "__main__":
     brisasDelMar()
-    # test()

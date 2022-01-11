@@ -6,27 +6,7 @@ from bs4 import BeautifulSoup
 import requests
 from controller import Controller
 from configuration import RESTAURANT_GURU
-import unicodedata
 
-from datetime import date
-from datetime import datetime
-from datetime import timedelta
-
-def contain_br(contents):
-    for element in contents:
-        if type(element) is bs4.element.Tag:
-            if element.name == "br":
-                return True
-    return False
-
-
-def get_content(contents):
-    lista = []
-    for element in contents:
-        if type(element) is bs4.element.NavigableString:
-            if str(element) is not None and str(element).strip() != "":
-                lista.append(str(element))
-    return lista
 
 
 def scraping_ofertas(con, url_busqueda, id_region):
@@ -58,42 +38,42 @@ def scraping_ofertas(con, url_busqueda, id_region):
             try:
                 rest_info["nombre"] = restaurantInfoPage.find("h1", attrs={"class":"notranslate"}).get_text().replace('\n',"")
             except:
-                rest_info["nombre"] = "NO ESECIFICADO"
+                rest_info["nombre"] = "NO ESPECIFICADO"
                 print("no se encontro el nombre")
                 
             try:
                 rest_info["precio"] = restaurantInfoPage.find("div", attrs={"class":"short_info with_avg_price"}).get_text().replace('\n',"").replace('$',"")[36:].replace('-',"")
             except:
-                rest_info["precio"] = "NO ESECIFICADO"
+                rest_info["precio"] = "NO ESPECIFICADO"
                 print("no se encontro el precio")
             
             try:
                 rest_info["horario"] = restaurantInfoPage.findAll("td", attrs={"class":"current-day"})[1].get_text()
             except:
-                rest_info["horario"] = "NO ESECIFICADO"
+                rest_info["horario"] = "NO ESPECIFICADO"
                 print("no se encontro el horario")
                 
 
             try:
                 rest_info["direccion"] = restaurantInfoPage.find("div", attrs={"class":"address"}).findAll("div")[1].get_text().replace('\n',"")
             except:
-                rest_info["direccion"] = "NO ESECIFICADO"
-                print("no se encontro el horario")
+                rest_info["direccion"] = "NO ESPECIFICADO"
+                print("no se encontro la direccion")
                 
             
             
             try:
                 rest_info["especialidad"] = restaurantInfoPage.find("div", attrs={"class":"cuisine_wrapper"}).get_text().replace('\n',"")
             except:
-                rest_info["especialidad"] = "NO ESECIFICADO"
-                print("no se encontro el horario")
+                rest_info["especialidad"] = "NO ESPECIFICADO"
+                print("no se encontro la especialidad")
 
             try:
                 rest_info["web"] = restaurantInfoPage.find("div", attrs={"class":"website"}).findAll("div")[1].find("a").get_text().replace('\n',"")
                 print(rest_info["web"])
             except:
-                rest_info["web"] = "NO ESECIFICADO"
-                print("no se encontro el horario")
+                rest_info["web"] = "NO ESPECIFICADO"
+                print("no se encontro la web")
                 
         
             try:
@@ -103,7 +83,7 @@ def scraping_ofertas(con, url_busqueda, id_region):
                     comidas=comidas.replace('\n',"")+comida.get_text().replace('\n',"")+'-'
                 rest_info["platos"] = comidas
             except:
-                rest_info["platos"] = "NO ESECIFICADO"
+                rest_info["platos"] = "NO ESPECIFICADO"
                 print("no se encontro los platos")
 
             lista_oferta.append(rest_info)
@@ -114,55 +94,6 @@ def scraping_ofertas(con, url_busqueda, id_region):
             controller.registrar_comida(con, rest_info)
 
     return lista_oferta
-
-
-def scraping_ofertadetalle(url_pagina, row_id, con):
-    controller = Controller()
-    detalle = {}
-    detalle["id_oferta"] = row_id
-    print(detalle["id_oferta"])
-    req = requests.get(url_pagina)
-    soup = BeautifulSoup(req.text, "lxml")
-    
-    contenido = soup.find("div", attrs={"class": "col-md-12 descripcion-texto"})
-    try: 
-        str_list = elimina_tildes(contenido.decode_contents().replace("</p>", '').replace("<p>", '').replace("-", '').replace("•", '').strip()).split('<BR/>')
-    except: 
-        str_list = []
-        
-    str_list = list(filter(None, str_list))
-
-    #print(str_list)
-    """
-    try:
-        contenido_extra = soup.findAll("div", attrs={"class": "row oferta-contenido"})
-        str_list2 = elimina_tildes(contenido_extra[-1].get_text().replace("•", '')).splitlines()
-        str_list2 = list(filter(None, str_list2))
-    except:
-        str_list2 = []
-    """
-    #print(str_list2)
-
-
-
-    for s_contenido in str_list:
-        detalle["descripcion"] = s_contenido.strip()[0:2000]
-        controller.registrar_oferta_detalle(con, detalle)
-    
-    """
-    for s_contenido_x in str_list2:
-        detalle["descripcion"] = s_contenido_x.strip()
-        controller.registrar_oferta_detalle(con, detalle)
-    """
-    return 1
-
-
-def replace_quote(list):
-    new_list = []
-    for el in list:
-        el = el.replace("'", "''")
-        new_list.append(el)
-    return new_list
 
 
 def obtener_lista_keywords(con):
@@ -178,23 +109,3 @@ def obtener_lista_keywords(con):
     return lista_busquedas
 
 
-def elimina_tildes(cadena):
-    s = ''.join((c for c in unicodedata.normalize('NFD',cadena) if unicodedata.category(c) != 'Mn'))
-    return s.upper()
-
-def fecha_publicacion(modalidad, tiempo):
-    #[-1] = mes-dias-ayer-hoy
-    #[-2]= 25-publicado-un
-    tiemponum = 1
-    if(tiempo == "UN"):
-        tiemponum = 1
-
-    tiempo = int(tiemponum)
-    switcher = {
-        "HORAS": datetime.now() + timedelta(days=-tiempo/24),       
-        "DIA":   datetime.now() + timedelta(days=-1),
-        "DIAS":  datetime.now() + timedelta(days=-tiempo),
-        "MES":   datetime.now() + timedelta(days=-30),
-        "MESES": datetime.now() + timedelta(days=-tiempo*30)
-    }
-    return switcher.get(modalidad,datetime.now())
