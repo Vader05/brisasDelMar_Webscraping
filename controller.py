@@ -16,12 +16,12 @@ class Controller:
         self.dbkeywordsearch = DBKeyworSearch()
 
 
-    def registrar_webscraping(self, con, webscraping):
-        id = self.dbwebscraping.insert_webscraping(con, webscraping)
+    def registrar_restaurante(self, con, restaurante):
+        id = self.dbwebscraping.insert_restaurante(con, restaurante)
         return id
 
-    def registrar_oferta(self, con, oferta):        
-        return self.dboferta.insert_oferta(con, oferta)
+    def registrar_detalle_restaurante(self, con, restaurante):        
+        self.dboferta.insert_detalle(con, restaurante)
 
     ##metodo añadido para insertar las tuplas del detalle de la oferta
     def registrar_detalle_oferta(self, con, listaDetalle):
@@ -29,12 +29,8 @@ class Controller:
         idOfertaDetalle=self.dbofertadetalle.insertOfertaDetalle(con, listaDetalle)            
         
 
-    def registrar_ofertas(self, con, lista_oferta):
-        print(len(lista_oferta))
-        for oferta in lista_oferta:
-            print("----------------analizando que hay en lista oferta---------------------")
-            print(oferta)
-            idPuesto = self.dboferta.insert_oferta(con, oferta)     
+    def registrar_comida(self, con, lista_comida):
+        self.dboferta.insert_comida(con, lista_comida)     
 
     def generar_insert_ofertadetalle(self, oferta):
         sql_insert = "INSERT INTO OFERTA_DETALLE (id_oferta,descripcion,fecha_creacion,fecha_modificacion) VALUES (%s,'%s',sysdate,sysdate);"

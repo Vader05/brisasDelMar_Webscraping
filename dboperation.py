@@ -5,20 +5,20 @@ class DBWebscraping:
     def __init__(self):
         pass
 
-    def insert_webscraping(self, connection, carga):
+    def insert_restaurante(self, connection, carga):
         mydb = connection.connect()
         try:
           #mydb = connection.connect()         
           cur = mydb.cursor() 
           # insertando un registro
-          sql = "insert into webscraping (busqueda, busqueda_area, pagina_web, url_pagina, url_busqueda,fecha_creacion,fecha_modificacion, id_keyword) values (%s,%s,%s,%s,%s,current_date,current_date, %s)"
-          params = (carga["busqueda"], carga["busqueda_area"], carga["pagina"], carga["url_principal"],carga["url_busqueda"],carga["id_keyword"])
+          sql = "insert into restaurante (nombre, especialidad, id_region) VALUES(%s,%s,%s)"
+          params = (carga["nombre"], carga["especialidad"], carga["id_region"])
           cur.execute(sql, params)                 
           mydb.commit()
 
-          sql = "SELECT last_value FROM webscraping_id_webscraping_seq"
+          sql = "SELECT last_value FROM restaurante_id_seq"
           cur.execute(sql)  
-          id_webscraping = int(cur.fetchone()[0])
+          id_restaurante = int(cur.fetchone()[0])
           
           # close the communication with the PostgreSQL
           cur.close()
@@ -26,29 +26,27 @@ class DBWebscraping:
         except (Exception, psycopg2.DatabaseError) as error:                
             print (error)
             mydb.close()
-        
-        print("id webscraping: ",id_webscraping)        
-        return id_webscraping
-
+        return id_restaurante
+    
 
 class DBOferta:
     def __init__(self):
         pass
 
-    def insert_oferta(self, connection, oferta):        
-        id_oferta=0
+    def insert_detalle(self, connection, detalle):        
+        # id_restaurante_detalle=0
         mydb = connection.connect()
         try:
             #mydb = connection.connect()
             cur = mydb.cursor()                                    
-            sql = "insert into Oferta (id_webscraping, titulo,empresa,lugar,salario,oferta_detalle,url_oferta,url_pagina,time_publicacion, area, id_anuncioempleo,fecha_publicacion,fecha_creacion,fecha_modificacion) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,current_date,current_date)"            
-            params = (oferta["id_carga"], oferta["puesto"].strip(), oferta["empresa"].strip(), oferta["lugar"].strip(),oferta["salario"].strip(),oferta["detalle"].strip(), oferta["url"].strip(), oferta["url_pagina"].strip(), oferta["time_publicacion"].strip(), oferta["area"].strip(), oferta["id_anuncioempleo"], oferta["fecha_publicacion"])
+            sql = "insert into restaurante_detalle (id_restaurante, rango_precio, horario_atencion, pagina_web, direccion) values (%s,%s,%s,%s,%s)"            
+            params = (detalle["id_restaurante"], detalle["precio"].strip(), detalle["horario"].strip(), detalle["web"].strip(),detalle["direccion"].strip())
             cur.execute(sql, params)        
             mydb.commit()            
 
-            sql = "SELECT last_value FROM Oferta_id_Oferta_seq"
-            cur.execute(sql)  
-            id_oferta = int(cur.fetchone()[0])
+            # sql = "SELECT last_value FROM restaurante_detalle_id_seq"
+            # cur.execute(sql)  
+            # id_restaurante_detalle = int(cur.fetchone()[0])
             #print(id_oferta)  
             
             # close the communication with the PostgreSQL
@@ -61,30 +59,35 @@ class DBOferta:
             print("insertar oferta ERROR")
             mydb.close()        
             
-        return id_oferta
+        # return id_restaurante_detalle
     
-    def evitar_redundancia(self, connection, oferta):        
+    def insert_comida(self, connection, oferta):        
+        # id_comida=0
         mydb = connection.connect()
         try:
             #mydb = connection.connect()
             cur = mydb.cursor()                                    
-            row = None
-            sql = "SELECT * FROM OFERTA WHERE URL_OFERTA = '" + oferta["url"] + "' AND ID_ESTADO IS NULL LIMIT 1;" 
-            #print(sql)
-            cur.execute(sql)  
-            row = cur.fetchone()
+            sql = "insert into comida_restaurante (nombre, id_restaurante) values (%s,%s)"            
+            params = (oferta["nombre"], oferta["id_restaurante"])
+            cur.execute(sql, params)        
+            mydb.commit()            
 
+            # sql = "SELECT last_value FROM comida_restaurante_id_comida_seq"
+            # cur.execute(sql)  
+            # id_comida = int(cur.fetchone()[0])
+            #print(id_oferta)  
+            
             # close the communication with the PostgreSQL
             cur.close()
             mydb.close()                           
 
         except (Exception, psycopg2.DatabaseError) as error:                
-                print ("-------------Exception, psycopg2.DatabaseError-------------------")
-                print (error)
-                print("insertar oferta (EVITA REDUNDANCIA) ERROR")
-                mydb.close()        
-        return row
-
+            print ("-------------Exception, psycopg2.DatabaseError-------------------")
+            print (error)
+            print("insertar oferta ERROR")
+            mydb.close()        
+            
+        # return id_comida
 
 class DBOfertadetalle:
     def __init__(self):
@@ -179,7 +182,7 @@ class DBKeyworSearch:
             mydb = connection.connect()
             cur = mydb.cursor()                                    
 
-            sql = "SELECT DESCRIPCION, ID_KEYWORD FROM KEYWORD_SEARCH"
+            sql = "SELECT id_region, capital_departamento FROM region_restaurante"
             cur.execute(sql)  
             
             array_de_tuplas = []
@@ -204,26 +207,7 @@ class DatesDB:
     def __init__(self):
         pass
 
-    '''
-    def getDate(self,connection):
-        try:
-            mydb= connection.connect()
-            mycursor= mydb.cursor()
-            sql= 'select max(o.fecha_publicacion), w.id_keyword from oferta as o inner join webscraping as w on o.id_webscraping=w.id_webscraping
-                        where w.pagina_web='computrabajo' 
-                    group by (w.pagina_web, w.id_keyword);'
-            mycursor.execute(sql)
-            tupla=list(mycursor)
-            # close the communication with the PostgreSQL
-            mycursor.close()
-            mydb.close()
-        except (Exception, psycopg2.DatabaseError) as error:
-            print ("-------------Exception, psycopg2.DatabaseError-------------------")
-            print (error)
-            mydb.close()
-        
-        return tupla
-    '''
+    
 
 #RESETEAR FECHAS
 #update oferta set fecha_publicacion=null;

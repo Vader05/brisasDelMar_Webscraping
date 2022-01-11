@@ -1,9 +1,9 @@
 
 # DATABASE
 DATABASE = {
-    "DB_HOST" : "35.188.118.46",
-    "DB_SERVICE" : "BD-Jobby",
-    "DB_USER" : "postgres",
+    "DB_HOST" : "brisas-del-mar-ws.postgres.database.azure.com",
+    "DB_SERVICE" : "postgres",
+    "DB_USER" : "vader@brisas-del-mar-ws",
     "DB_PASSWORD" : "Oneokrock1"
 }
 

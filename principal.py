@@ -25,12 +25,13 @@ def brisasDelMar():
     carga["url_principal"] = RESTAURANT_GURU["WS_PORTAL_LABORAL_URL"]
 
     for type_search in webscraping_restaurant_guru.obtener_lista_keywords(con):
+        print(type_search)
         carga["url_busqueda"] = carga["url_principal"] + type_search["descripcion"]
         carga["id_keyword"] = type_search["id"]
-        carga["id_carga"] = controller.registrar_webscraping(con, carga)
+        # carga["id_carga"] = controller.registrar_webscraping(con, carga)
 
         listaOferta = webscraping_restaurant_guru.scraping_ofertas(
-            con, carga["url_principal"], carga["url_busqueda"], carga["id_carga"]
+            con, carga["url_busqueda"],carga["id_keyword"]
         )
     
 
@@ -40,9 +41,9 @@ def test():
             RESTAURANT_GURU["WS_PORTAL_LABORAL_URL"], RESTAURANT_GURU["WS_PORTAL_LABORAL_URL"]+"Lima", 1
         )
     
-    print('desde test',lista)
+    # print('desde test',lista)
     
     
 if __name__ == "__main__":
-    # brisasDelMar()
-    test()
+    brisasDelMar()
+    # test()
