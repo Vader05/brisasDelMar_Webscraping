@@ -10,14 +10,9 @@ def scraping_ofertas(url_busqueda):
     lista_ofertas = []       
     url = url_busqueda
 
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'
-    }
- 
-    req = requests.get(url, headers=headers)
+    req = requests.get(url)
     soup = BeautifulSoup(req.text, "lxml")
     try:
-        # ofertas=soup.find("div", attrs={"class":"itemProduct n1colunas"}).findAll("ul", attrs={"class":""}) 
         ofertas=soup.find("div", attrs={"id":"gallery-layout-container"}).findAll("li")
     except:
         ofertas=[]

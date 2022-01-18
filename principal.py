@@ -12,7 +12,6 @@ def caso_estudio_bata():
     
     
 if __name__ == "__main__":
-    # caso_estudio_bata()
     with open("dataOfertasBata.csv","w", newline='') as file:
         writter=csv.writer(file,delimiter=";")
         writter.writerows(caso_estudio_bata())
