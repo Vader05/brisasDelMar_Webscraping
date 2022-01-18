@@ -17,46 +17,81 @@ def scraping_ofertas(url_busqueda):
     req = requests.get(url, headers=headers)
     soup = BeautifulSoup(req.text, "lxml")
     try:
-        ofertas=soup.find("div", attrs={"class":"itemProduct n1colunas"}).findAll("ul", attrs={"class":""}) 
+        # ofertas=soup.find("div", attrs={"class":"itemProduct n1colunas"}).findAll("ul", attrs={"class":""}) 
+        ofertas=soup.find("div", attrs={"id":"gallery-layout-container"}).findAll("li")
     except:
         ofertas=[]
         print("no se encontro ninguna oferta")
     if len(ofertas) != 0 :
         for oferta in ofertas:
+            ofertaAdd=[]
             oferta_info = {}
+
             try:
                 oferta_info["imagen"] = oferta.find("img")['src']
-                print(oferta_info["imagen"])
             except:
-                oferta_info["imagen"] = "NO ESECIFICADO"
-                print("no se encontro el imagen")
+                oferta_info["imagen"] = "NO ESPECIFICADO"
+
+            ofertaAdd.append(oferta_info["imagen"])
                 
             try:
-                oferta_info["marca"] = oferta.find("h3", attrs={"class":"productbrand"}).get_text()
-                print(oferta_info["marca"])
+                oferta_info["nombre"] = oferta.find("span", attrs={"class":"vtex-product-summary-2-x-productBrand vtex-product-summary-2-x-brandName t-body"}).get_text()
 
             except:
-                oferta_info["marca"] = "NO ESECIFICADO"
-                print("no se encontro el marca")
+                oferta_info["nombre"] = "NO ESPECIFICADO"
             
+            ofertaAdd.append(oferta_info["nombre"])
+
             try:
-                oferta_info["nombre"] = oferta.find("h2", attrs={"class":"productNames"}).get_text()
-                print(oferta_info["nombre"])
+                oferta_info["tipoMoneda"] = oferta.find("span", attrs={"class":"vtex-product-price-1-x-currencyCode vtex-product-price-1-x-currencyCode--summary"}).get_text()
 
             except:
-                oferta_info["nombre"] = "NO ESECIFICADO"
-                print("no se encontro el nombre")
+                oferta_info["tipoMoneda"] = "NO ESPECIFICADO"
+
+            ofertaAdd.append(oferta_info["tipoMoneda"])
+
+
+            try:
                 
-            try:
-                oferta_info["precio"] = oferta.find("p", attrs={"class":"precio bestPrice"}).find("span", attrs={"class":"normal"}).get_text()
-                print(oferta_info["precio"])
+                precioActualEntero=oferta.find("span", attrs={"class":"vtex-product-price-1-x-currencyInteger vtex-product-price-1-x-currencyInteger--summary"}).get_text()
+                precioActualDecimal=oferta.find("span", attrs={"class":"vtex-product-price-1-x-currencyFraction vtex-product-price-1-x-currencyFraction--summary"}).get_text()
+                
+                oferta_info["precioActual"] = precioActualEntero + "." + precioActualDecimal
 
             except:
-                oferta_info["precio"] = oferta.find("p", attrs={"class":"precio ex-precio"}).find("span", attrs={"class":"ahora"}).get_text()
-                print(oferta_info["precio"])
-            lista_ofertas.append(oferta_info)
-            print("---------------------")
-            # print(oferta_info)
+                oferta_info["precioActual"] = "NO ESPECIFICADO"
+
+
+            ofertaAdd.append(oferta_info["precioActual"])
+
+        
+            try:
+
+                precioAnteriorEntero=oferta.find("span", attrs={"class":"vtex-product-price-1-x-listPrice"}).find("span", attrs={"class":"vtex-product-price-1-x-currencyInteger"}).get_text()
+                precioAnteriorDecimal=oferta.find("span", attrs={"class":"vtex-product-price-1-x-listPrice"}).find("span", attrs={"class":"vtex-product-price-1-x-currencyFraction"}).get_text()
+                
+                oferta_info["precioAnterior"] = precioAnteriorEntero + "." + precioAnteriorDecimal
+
+            except:
+                oferta_info["precioAnterior"] = oferta_info["precioActual"]
+
+            ofertaAdd.append(oferta_info["precioAnterior"])
+
+
+            try:
+                oferta_info["descuento"] = oferta.find("span", attrs={"class":"vtex-product-price-1-x-savingsPercentage"}).get_text()
+
+            except:
+                oferta_info["descuento"] = "NO TIENE DESCUENTO"
+
+
+            ofertaAdd.append(oferta_info["descuento"])
+
+
+            lista_ofertas.append(ofertaAdd)
+        
+        lista_ofertas.insert(0, ["Imagen", "Nombre", "Tipo de Moneda", "Precio Actual", "Precio Anterior", "Descuento"])
+
     
     return lista_ofertas
 
